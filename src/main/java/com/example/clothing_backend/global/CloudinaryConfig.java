@@ -1,3 +1,5 @@
+// 클라우디너리 연결 설정
+
 package com.example.clothing_backend.global;
 
 import com.cloudinary.Cloudinary;
@@ -5,9 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Cloudinary 연결을 설정하는 클래스
- */
 @Configuration
 public class CloudinaryConfig {
 

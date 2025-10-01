@@ -3,20 +3,30 @@ package com.example.clothing_backend.board;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-// XXX 삭제 XXX: import java.util.Base64; // 더 이상 DTO에서 Base64 변환을 하지 않음
 
 @Getter
 @NoArgsConstructor
 public class BoardDto {
+
+    // 게시글 PK
     private Long boardId;
+    // 제목
     private String title;
+    // 내용
     private String content;
+    // 작성자 닉네임
     private String nickname;
+    // 작성일
     private LocalDateTime redate;
+    // 수정일
     private LocalDateTime modifiedAt;
+    // 조회수
     private int viewCnt;
-    private String imageUrl; // VVV 수정 VVV: imageBase64 -> imageUrl
+    // 이미지 URL
+    private String imageUrl;
+    // 위치 위도
     private Double latitude;
+    // 위치 경도
     private Double longitude;
 
     // Entity -> DTO 변환 생성자
@@ -30,9 +40,6 @@ public class BoardDto {
         this.viewCnt = board.getViewCnt();
         this.latitude = board.getLatitude();
         this.longitude = board.getLongitude();
-
-        // VVV 수정 VVV: getImageData() 대신 getImageUrl()을 사용하고, Base64 변환 로직 제거
         this.imageUrl = board.getImageUrl();
     }
 }
-

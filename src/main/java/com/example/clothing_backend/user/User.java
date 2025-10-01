@@ -3,45 +3,36 @@ package com.example.clothing_backend.user;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-// XXX 삭제 XXX: import org.hibernate.annotations.JdbcTypeCode;
-// XXX 삭제 XXX: import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "`user`")
+@Table(name = "`user`") // user는 DB 예약어이므로 백틱(`) 처리
 @Getter
 @Setter
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long userId; // PK, auto_increment
 
     @Column(unique = true, nullable = false)
-    private String id;
+    private String id; // 로그인용 아이디, 중복 불가
 
     @Column(nullable = false)
-    private String password;
+    private String password; // 암호화된 비밀번호
 
     @Column(unique = true, nullable = false)
-    private String nickname;
+    private String nickname; // 닉네임, 중복 불가
 
     @Column(nullable = false)
-    private String email;
+    private String email; // 이메일, 중복 불가
 
-    private LocalDateTime redate;
+    private LocalDateTime redate; // 계정 생성 시각
 
-    // VVV 수정 VVV: byte[] 대신 이미지 URL을 저장할 String 타입으로 변경
-    private String profileImageUrl;
-
-    // XXX 삭제 XXX: Base64 관련 필드는 이제 필요 없음
-    // @Transient
-    // private String profileImageBase64;
-
+    private String profileImageUrl; // 프로필 이미지 URL
 
     @PrePersist
     public void prePersist() {
-        this.redate = LocalDateTime.now();
+        this.redate = LocalDateTime.now(); // 엔티티 저장 직전에 생성 시간 자동 설정
     }
 }
-

@@ -22,11 +22,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // 비밀번호 찾기
     Optional<User> findByIdAndEmail(String id, String email);
-
-    /*
-    XXX 삭제 XXX
-    Role 엔티티를 삭제했으므로, 더 이상 사용자 권한을 조회하는 기능은 필요 없음.
-    @Query("SELECT r.roleName FROM User u JOIN u.roles r WHERE u.userId = :userId")
-    List<String> findRolesByUserId(@Param("userId") Long userId);
-    */
 }

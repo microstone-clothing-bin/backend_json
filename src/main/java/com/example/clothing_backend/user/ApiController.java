@@ -35,6 +35,7 @@ public class ApiController {
 
     // --- 사용자 인증 API ---
 
+    // 로그인 처리: POST /api/user/login
     @PostMapping("/user/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String,String> loginRequest) {
         String id = loginRequest.get("id");
@@ -55,6 +56,7 @@ public class ApiController {
         }
     }
 
+    // 회원가입 처리: POST /api/user/register
     @PostMapping("/user/register")
     public ResponseEntity<Map<String, String>> registerUser(@RequestBody User user) {
         try {
@@ -66,22 +68,28 @@ public class ApiController {
     }
 
     // --- 중복 체크 API ---
+
+    // 아이디 중복 체크: GET /api/user/check-id
     @GetMapping("/user/check-id")
     public ResponseEntity<Map<String, Boolean>> checkIdDuplicate(@RequestParam("id") String id) {
         return ResponseEntity.ok(Collections.singletonMap("isDuplicate", userService.isDuplicate("id", id)));
     }
+
+    // 닉네임 중복 체크: GET /api/user/check-nickname
     @GetMapping("/user/check-nickname")
     public ResponseEntity<Map<String, Boolean>> checkNicknameDuplicate(@RequestParam("nickname") String nickname) {
         return ResponseEntity.ok(Collections.singletonMap("isDuplicate", userService.isDuplicate("nickname", nickname)));
     }
+
+    // 이메일 중복 체크: GET /api/user/check-email
     @GetMapping("/user/check-email")
     public ResponseEntity<Map<String, Boolean>> checkEmailDuplicate(@RequestParam("email") String email) {
         return ResponseEntity.ok(Collections.singletonMap("isDuplicate", userService.isDuplicate("email", email)));
     }
 
-
     // --- 마이페이지 API ---
 
+    // 프로필 이미지 업로드: POST /api/mypage/uploadProfile
     @PostMapping("/mypage/uploadProfile")
     public ResponseEntity<Map<String, String>> uploadProfile(
             @RequestParam("profileImage") MultipartFile profileImage,
@@ -91,6 +99,7 @@ public class ApiController {
         return ResponseEntity.ok(Map.of("status", "success", "profileImageUrl", imageUrl));
     }
 
+    // 비밀번호 재설정: POST /api/mypage/resetPassword
     @PostMapping("/mypage/resetPassword")
     public ResponseEntity<Map<String, String>> resetPassword(
             @RequestBody @Valid PasswordResetDto passwordResetDto,
@@ -108,6 +117,7 @@ public class ApiController {
         return ResponseEntity.ok(Map.of("status", "success", "message", "비밀번호가 변경되었습니다. 다시 로그인해주세요."));
     }
 
+    // 회원 탈퇴: POST /api/mypage/deleteAccount
     @PostMapping("/mypage/deleteAccount")
     public ResponseEntity<Map<String, String>> deleteAccount(@RequestParam("userId") Long userId) {
         User user = userService.getUserByUserId(userId);
@@ -117,6 +127,7 @@ public class ApiController {
 
     // --- 지도 및 의류수거함 API ---
 
+    // 의류 수거함 전체 조회: GET /api/clothing-bins
     @GetMapping(value = "/clothing-bins", produces = "application/json; charset=UTF-8")
     public List<MarkerDto> getClothingBins(
             @RequestParam(required = false) Double lat,
@@ -128,6 +139,7 @@ public class ApiController {
                 .collect(Collectors.toList());
     }
 
+    // 지도 범위 내 의류 수거함 조회: GET /api/clothing-bins/in-bounds
     @GetMapping(value = "/clothing-bins/in-bounds", produces = "application/json; charset=UTF-8")
     public List<MarkerDto> getBinsInBounds(
             @RequestParam double swLat,
@@ -142,47 +154,52 @@ public class ApiController {
 
     // --- 게시판 API ---
 
+    // 게시글 리스트 조회: GET /api/boards
     @GetMapping("/boards")
     public Page<BoardDto> getBoardsApi(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Board> boardPage = boardService.getBoards(pageable);
         return boardPage.map(BoardDto::new);
     }
 
+    // 단일 게시글 조회: GET /api/boards/{boardId}
     @GetMapping("/boards/{boardId}")
     public BoardDto getBoardApi(@PathVariable long boardId) {
         Board board = boardService.getBoard(boardId);
         return new BoardDto(board);
     }
 
+    // 게시글 작성: POST /api/boards
     @PostMapping("/boards")
     public ResponseEntity<Map<String, String>> writeBoard(
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam Long userId,
             @RequestParam String nickname,
-            @RequestParam(required = false) MultipartFile image, // 원본 파일(MultipartFile)을 받음
+            @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) Double latitude,
             @RequestParam(required = false) Double longitude) throws IOException {
 
-        // VVV 수정 VVV: byte[] 변환 없이 원본 파일(image)을 그대로 서비스에 전달!
         boardService.addBoard(nickname, title, content, userId, image, latitude, longitude);
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 등록되었습니다."));
     }
 
     // --- 즐겨찾기 API ---
 
+    // 즐겨찾기 추가: POST /api/wish/add/{binId}
     @PostMapping("/wish/add/{binId}")
     public ResponseEntity<Map<String, String>> addWish(@PathVariable Long binId, @RequestParam Long userId) {
         wishService.addWish(userId, binId);
         return ResponseEntity.ok(Map.of("status", "success", "message", "즐겨찾기가 추가되었습니다."));
     }
 
+    // 즐겨찾기 제거: DELETE /api/wish/remove/{binId}
     @DeleteMapping("/wish/remove/{binId}")
     public ResponseEntity<Map<String, String>> removeWish(@PathVariable Long binId, @RequestParam Long userId) {
         wishService.removeWish(userId, binId);
         return ResponseEntity.ok(Map.of("status", "success", "message", "즐겨찾기가 해제되었습니다."));
     }
 
+    // 즐겨찾기 리스트 조회: GET /api/wish/list
     @GetMapping("/wish/list")
     public ResponseEntity<List<Long>> getUserWishes(@RequestParam Long userId) {
         List<Long> userWishes = wishService.getUserWishes(userId)
@@ -194,11 +211,13 @@ public class ApiController {
 
     // --- 리뷰 API ---
 
+    // 특정 의류수거함 리뷰 조회: GET /api/markers/{binId}/posts
     @GetMapping("/markers/{binId}/posts")
     public List<MarkerPostDto> getPostsForMarker(@PathVariable Long binId) {
         return markerPostService.getPostsByBinId(binId);
     }
 
+    // 리뷰 작성: POST /api/markers/{binId}/posts
     @PostMapping("/markers/{binId}/posts")
     public ResponseEntity<Map<String, String>> createPostForMarker(
             @PathVariable Long binId,

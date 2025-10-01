@@ -1,3 +1,5 @@
+// 보안 설정
+
 package com.example.clothing_backend.global;
 
 import lombok.RequiredArgsConstructor;
@@ -17,40 +19,47 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // 1. 비밀번호 암호화 설정
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // PasswordEncoder는 회원가입 시 비밀번호 암호화 등 여전히 필요하므로 유지
+        // 회원가입 시 비밀번호 암호화, 로그인 시 비교용
         return new BCryptPasswordEncoder();
     }
 
+    // 2. 시큐리티 필터 체인 설정
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS 설정은 프론트엔드 통신을 위해 필수적으로 유지
+                // CORS 설정 적용 (프론트엔드와 통신 가능하도록)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-                // [수정] CSRF 보호 기능 완전 비활성화 (Stateless API)
+                // CSRF 보호 비활성화 (Stateless API니까 필요 없음)
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // [핵심] 모든 요청에 대해 인증 절차 없이 항상 허용하도록 변경
+                // 모든 요청 인증 없이 허용
                 .authorizeHttpRequests(authz -> authz
                         .anyRequest().permitAll()
                 );
 
-        // [핵심] formLogin, logout 등 웹 페이지 기반의 모든 인증 관련 설정 제거
-
+        // formLogin, logout 등 웹페이지 기반 인증 기능 제거
         return http.build();
     }
 
+    // 3. CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 프론트엔드 서버 주소
+        // 프론트엔드에서 요청 가능하도록 origin 설정
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // 허용 HTTP 메소드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // 모든 헤더 허용
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        // 쿠키 포함 요청 허용
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // 모든 경로에 대해 CORS 설정 적용
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }

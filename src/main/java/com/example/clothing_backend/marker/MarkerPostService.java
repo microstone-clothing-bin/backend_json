@@ -1,6 +1,6 @@
 package com.example.clothing_backend.marker;
 
-import com.example.clothing_backend.global.ImageUploadService; // VVV 전문가 import VVV
+import com.example.clothing_backend.global.ImageUploadService;
 import com.example.clothing_backend.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ public class MarkerPostService {
 
     private final MarkerPostRepository markerPostRepository;
     private final ClothingBinRepository clothingBinRepository;
-    private final ImageUploadService imageUploadService; // VVV 전문가 주입 VVV
+    private final ImageUploadService imageUploadService;
 
     // 특정 의류수거함의 모든 게시글을 DTO로 변환하여 조회
     public List<MarkerPostDto> getPostsByBinId(Long binId) {

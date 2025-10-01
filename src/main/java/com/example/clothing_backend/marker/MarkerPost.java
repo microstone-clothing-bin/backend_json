@@ -4,8 +4,8 @@ import com.example.clothing_backend.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+// XXX 삭제 XXX: import org.hibernate.annotations.JdbcTypeCode;
+// XXX 삭제 XXX: import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,9 +21,8 @@ public class MarkerPost {
     @Column(nullable = false)
     private String content;
 
-    // DB 종류에 상관없이 작동하도록 @JdbcTypeCode 사용
-    @JdbcTypeCode(SqlTypes.VARBINARY)
-    private byte[] image;
+    // VVV 수정 VVV: byte[] 대신 이미지 URL을 저장할 String 타입으로 변경
+    private String imageUrl;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

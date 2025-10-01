@@ -1,5 +1,6 @@
 package com.example.clothing_backend.marker;
 
+import com.example.clothing_backend.global.ImageUploadService; // VVV 전문가 import VVV
 import com.example.clothing_backend.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,14 +17,13 @@ public class MarkerPostService {
 
     private final MarkerPostRepository markerPostRepository;
     private final ClothingBinRepository clothingBinRepository;
+    private final ImageUploadService imageUploadService; // VVV 전문가 주입 VVV
 
     // 특정 의류수거함의 모든 게시글을 DTO로 변환하여 조회
     public List<MarkerPostDto> getPostsByBinId(Long binId) {
         return markerPostRepository.findAllByClothingBin_IdOrderByCreatedAtDesc(binId)
                 .stream()
-                // [수정] new MarkerPostDto(post) 생성자에서 이미지 변환을 모두 처리하므로
-                //         별도의 변환 로직이 필요 없음.
-                .map(MarkerPostDto::new)
+                .map(MarkerPostDto::new) // DTO가 URL을 처리하도록 수정됨
                 .collect(Collectors.toList());
     }
 
@@ -33,14 +33,14 @@ public class MarkerPostService {
         ClothingBin clothingBin = clothingBinRepository.findById(binId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 의류수거함 ID입니다: " + binId));
 
+        // VVV 여기가 핵심! 이미지 처리를 전문가에게 위임! VVV
+        String imageUrl = imageUploadService.uploadImage(imageFile);
+
         MarkerPost post = new MarkerPost();
         post.setContent(content);
         post.setClothingBin(clothingBin);
         post.setUser(user);
-
-        if (imageFile != null && !imageFile.isEmpty()) {
-            post.setImage(imageFile.getBytes());
-        }
+        post.setImageUrl(imageUrl); // 이제 DB에는 URL만 저장!
 
         markerPostRepository.save(post);
     }

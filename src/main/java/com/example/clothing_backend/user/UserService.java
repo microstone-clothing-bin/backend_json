@@ -1,12 +1,12 @@
 package com.example.clothing_backend.user;
 
+import com.example.clothing_backend.global.ImageUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.Base64;
-import java.util.List;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +15,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageUploadService imageUploadService;
 
     // 회원가입
     @Transactional
@@ -45,14 +46,6 @@ public class UserService {
         return false;
     }
 
-    /*
-    XXX 삭제 XXX
-    Role 시스템을 제거했으므로, 더 이상 사용자 역할을 조회하는 기능은 필요 없음.
-    public List<String> getRoles(Long userId) {
-        return userRepository.findRolesByUserId(userId);
-    }
-    */
-
     // 아이디 찾기
     public String findIdByNicknameAndEmail(String nickname, String email) {
         return userRepository.findByNicknameAndEmail(nickname, email)
@@ -69,28 +62,17 @@ public class UserService {
 
     // 프로필 이미지 저장
     @Transactional
-    public String saveProfileImage(MultipartFile file, String id) {
-        User user = getUser(id);
+    public String saveProfileImage(MultipartFile file, String loginId) throws IOException {
+        User user = getUser(loginId);
         if (user == null) {
-            throw new UserNotFoundException("ID가 " + id + "인 사용자를 찾을 수 없습니다.");
+            throw new UserNotFoundException("ID가 " + loginId + "인 사용자를 찾을 수 없습니다.");
         }
-        try {
-            byte[] bytes = file.getBytes();
-            user.setProfileImageBlob(bytes);
-            userRepository.save(user); // 변경사항 저장
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(bytes);
-        } catch (Exception e) {
-            throw new RuntimeException("프로필 이미지 저장 실패", e);
-        }
-    }
 
-    // 프로필 이미지 조회
-    public String getProfileImageBase64(String id) {
-        User user = getUser(id);
-        if (user != null && user.getProfileImageBlob() != null) {
-            return "data:image/png;base64," + Base64.getEncoder().encodeToString(user.getProfileImageBlob());
-        }
-        return null;
+        String imageUrl = imageUploadService.uploadImage(file);
+        user.setProfileImageUrl(imageUrl);
+        userRepository.save(user);
+
+        return imageUrl;
     }
 
     // 회원 탈퇴

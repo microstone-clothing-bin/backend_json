@@ -85,14 +85,10 @@ public class ApiController {
     @PostMapping("/mypage/uploadProfile")
     public ResponseEntity<Map<String, String>> uploadProfile(
             @RequestParam("profileImage") MultipartFile profileImage,
-            @RequestParam("userId") Long userId) {
-        try {
-            User user = userService.getUserByUserId(userId);
-            String base64Image = userService.saveProfileImage(profileImage, user.getId());
-            return ResponseEntity.ok(Map.of("status", "success", "profileImageUrl", base64Image));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", "이미지 업로드 실패: " + e.getMessage()));
-        }
+            @RequestParam("userId") Long userId) throws IOException {
+        User user = userService.getUserByUserId(userId);
+        String imageUrl = userService.saveProfileImage(profileImage, user.getId());
+        return ResponseEntity.ok(Map.of("status", "success", "profileImageUrl", imageUrl));
     }
 
     @PostMapping("/mypage/resetPassword")
@@ -127,7 +123,6 @@ public class ApiController {
             @RequestParam(required = false) Double lng,
             @RequestParam(required = false) Double radiusKm) {
         List<ClothingBin> bins = clothingBinService.findClothingBins(lat, lng, radiusKm);
-        // [수정] new MarkerDto(...) 부분에 bin.getId()를 추가!
         return bins.stream()
                 .map(bin -> new MarkerDto(bin.getId(), bin.getLatitude(), bin.getLongitude(), bin.getRoadAddress()))
                 .collect(Collectors.toList());
@@ -140,7 +135,6 @@ public class ApiController {
             @RequestParam double neLat,
             @RequestParam double neLng) {
         List<ClothingBin> bins = clothingBinService.findBinsInBounds(swLat, swLng, neLat, neLng);
-        // [수정] new MarkerDto(...) 부분에 bin.getId()를 추가!
         return bins.stream()
                 .map(bin -> new MarkerDto(bin.getId(), bin.getLatitude(), bin.getLongitude(), bin.getRoadAddress()))
                 .collect(Collectors.toList());
@@ -151,11 +145,9 @@ public class ApiController {
     @GetMapping("/boards")
     public Page<BoardDto> getBoardsApi(@PageableDefault(size = 10, sort = "boardId", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<Board> boardPage = boardService.getBoards(pageable);
-        // Page<Board>를 Page<BoardDto>로 변환
         return boardPage.map(BoardDto::new);
     }
 
-    // [유지] 상세 보기는 이미 DTO를 사용하므로 완벽함
     @GetMapping("/boards/{boardId}")
     public BoardDto getBoardApi(@PathVariable long boardId) {
         Board board = boardService.getBoard(boardId);
@@ -168,13 +160,12 @@ public class ApiController {
             @RequestParam String content,
             @RequestParam Long userId,
             @RequestParam String nickname,
-            @RequestParam(required = false) MultipartFile image,
-            @RequestParam(required = false) Double latitude,  // <-- 여기!
-            @RequestParam(required = false) Double longitude) // <-- 여기!
-            throws IOException {
+            @RequestParam(required = false) MultipartFile image, // 원본 파일(MultipartFile)을 받음
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude) throws IOException {
 
-        byte[] imageData = (image != null && !image.isEmpty()) ? image.getBytes() : null;
-        boardService.addBoard(nickname, title, content, userId, imageData, latitude, longitude);
+        // VVV 수정 VVV: byte[] 변환 없이 원본 파일(image)을 그대로 서비스에 전달!
+        boardService.addBoard(nickname, title, content, userId, image, latitude, longitude);
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 등록되었습니다."));
     }
 

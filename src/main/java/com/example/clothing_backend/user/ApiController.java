@@ -50,6 +50,7 @@ public class ApiController {
             response.put("message", "로그인 성공");
             response.put("userId", user.getUserId());
             response.put("nickname", user.getNickname());
+            response.put("version", "v3-final-fix"); // 배포 오류 시 필요한 버젼 확인
             return ResponseEntity.ok(response);
         } else {
             response.put("status", "error");

@@ -1,6 +1,8 @@
 package com.example.clothing_backend.board;
 
 import com.example.clothing_backend.global.ImageUploadService;
+import com.example.clothing_backend.marker.ClothingBin;
+import com.example.clothing_backend.marker.ClothingBinRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +18,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository; // DB 접근용 리포지토리
     private final ImageUploadService imageUploadService; // 이미지 업로드 처리 담당 (클라우디너리 사용중)
+    private final ClothingBinRepository clothingBinRepository; // 의류수거함 정보 조회용
 
     // 게시글 리스트 조회 (페이징 지원)
     public Page<Board> getBoards(Pageable pageable) {
@@ -35,7 +38,7 @@ public class BoardService {
     @Transactional
     public void addBoard(String nickname, String title, String content, Long userId,
                          MultipartFile imageFile, // 이미지 파일 업로드 받음
-                         Double latitude, Double longitude) throws IOException {
+                         Long binId) throws IOException { // binId 받기
 
         String imageUrl = imageUploadService.uploadImage(imageFile);
 
@@ -44,10 +47,15 @@ public class BoardService {
         board.setTitle(title);
         board.setContent(content);
         board.setUserId(userId);
-        board.setImageUrl(imageUrl); // DB에는 URL만 저장 (이미지 데이터 X)
-        board.setLatitude(latitude);
-        board.setLongitude(longitude);
+        board.setImageUrl(imageUrl); // DB에는 URL만 저장
         board.setViewCnt(0); // 새 글이니까 조회수 0으로 시작
+
+        // binId로 ClothingBin을 찾아서 연결
+        if (binId != null) {
+            ClothingBin bin = clothingBinRepository.findById(binId)
+                    .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 의류수거함 ID입니다: " + binId));
+            board.setClothingBin(bin);
+        }
 
         boardRepository.save(board); // DB 저장
     }

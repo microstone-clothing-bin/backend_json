@@ -53,6 +53,11 @@ public class UserService {
                 .orElse(null);
     }
 
+    // 비밀번호 찾기 전 사용자 확인용 메소드
+    public boolean verifyUserByIdAndEmail(String id, String email) {
+        return userRepository.findByIdAndEmail(id, email).isPresent();
+    }
+
     // 비밀번호 찾기
     public String findPwByIdAndEmail(String id, String email) {
         return userRepository.findByIdAndEmail(id, email)

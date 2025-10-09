@@ -28,6 +28,8 @@ public class BoardDto {
     private Double latitude;
     // 위치 경도
     private Double longitude;
+    // 연결된 의류수거함 ID
+    private Long binId;
 
     // Entity -> DTO 변환 생성자
     public BoardDto(Board board) {
@@ -38,8 +40,13 @@ public class BoardDto {
         this.redate = board.getRedate();
         this.modifiedAt = board.getModifiedAt();
         this.viewCnt = board.getViewCnt();
-        this.latitude = board.getLatitude();
-        this.longitude = board.getLongitude();
         this.imageUrl = board.getImageUrl();
+
+        // board에 연결된 clothingBin 객체가 존재 시, 그 안에서 id와 좌표를 꺼내 DTO에 저장
+        if (board.getClothingBin() != null) {
+            this.binId = board.getClothingBin().getId();
+            this.latitude = board.getClothingBin().getLatitude();
+            this.longitude = board.getClothingBin().getLongitude();
+        }
     }
 }

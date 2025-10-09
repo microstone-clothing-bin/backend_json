@@ -1,5 +1,3 @@
-// version 1.0
-
 package com.example.clothing_backend.user;
 
 import com.example.clothing_backend.marker.*;
@@ -14,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +49,6 @@ public class ApiController {
             response.put("message", "로그인 성공");
             response.put("userId", user.getUserId());
             response.put("nickname", user.getNickname());
-            response.put("version", "v3-final-fix"); // 배포 오류 시 필요한 버젼 확인
             return ResponseEntity.ok(response);
         } else {
             response.put("status", "error");
@@ -67,6 +65,65 @@ public class ApiController {
             return ResponseEntity.ok(Map.of("status", "success", "message", "회원가입이 완료되었습니다."));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "message", "회원가입 실패: " + e.getMessage()));
+        }
+    }
+
+    // 로그아웃 처리: POST /api/user/logout
+    @PostMapping("/user/logout")
+    public ResponseEntity<Map<String, String>> logoutUser() {
+        // Stateless 방식이므로 서버에서는 특별히 할 작업이 없음.
+        // 프론트엔드가 클라이언트 측 인증 정보를 삭제하는 것을 확인하는 용도의 API.
+        return ResponseEntity.ok(Map.of("status", "success", "message", "로그아웃되었습니다."));
+    }
+
+    // 아이디 찾기: POST /api/user/find-id
+    @PostMapping("/user/find-id")
+    public ResponseEntity<Map<String, Object>> findId(@RequestBody Map<String, String> request) {
+        String nickname = request.get("nickname");
+        String email = request.get("email");
+        String foundId = userService.findIdByNicknameAndEmail(nickname, email);
+
+        if (foundId != null) {
+            // key를 "userId"로 반환
+            return ResponseEntity.ok(Map.of("status", "success", "userId", foundId));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "일치하는 계정을 찾을 수 없습니다."));
+        }
+    }
+
+    // 비밀번호 찾기 (사용자 확인): POST /api/user/find-password
+    @PostMapping("/user/find-password")
+    public ResponseEntity<Map<String, String>> findPassword(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId"); // String 타입의 로그인 ID
+        String email = request.get("email");
+
+        boolean userExists = userService.verifyUserByIdAndEmail(userId, email);
+
+        if (userExists) {
+            return ResponseEntity.ok(Map.of("status", "success", "message", "사용자 확인 완료"));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "일치하는 계정을 찾을 수 없습니다."));
+        }
+    }
+
+    // 비밀번호 찾기 이후 사용하는 비밀번호 재설정
+    // 비밀번호 재설정: POST /api/user/reset-password
+    @PostMapping("/user/reset-password")
+    public ResponseEntity<Map<String, String>> resetPasswordWithoutLogin(@RequestBody Map<String, String> request) {
+        String userId = request.get("userId");
+        String email = request.get("email");
+        String newPassword = request.get("newPassword");
+
+        try {
+            // 기존 updatePassword 메소드 재활용
+            userService.updatePassword(userId, email, newPassword);
+            return ResponseEntity.ok(Map.of("status", "success", "message", "비밀번호가 변경되었습니다."));
+        } catch (UserNotFoundException e) {
+            // 사용자를 못 찾으면 404 에러와 함께 실패 메시지 반환
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("status", "error", "message", "사용자를 찾을 수 없습니다."));
         }
     }
 
@@ -102,6 +159,7 @@ public class ApiController {
         return ResponseEntity.ok(Map.of("status", "success", "profileImageUrl", imageUrl));
     }
 
+    // 마이 페이지에서 사용하는 비밀번호 재설정
     // 비밀번호 재설정: POST /api/mypage/resetPassword
     @PostMapping("/mypage/resetPassword")
     public ResponseEntity<Map<String, String>> resetPassword(
@@ -179,10 +237,9 @@ public class ApiController {
             @RequestParam Long userId,
             @RequestParam String nickname,
             @RequestParam(required = false) MultipartFile image,
-            @RequestParam(required = false) Double latitude,
-            @RequestParam(required = false) Double longitude) throws IOException {
+            @RequestParam(required = false) Long binId) throws IOException {
 
-        boardService.addBoard(nickname, title, content, userId, image, latitude, longitude);
+        boardService.addBoard(nickname, title, content, userId, image, binId);
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 등록되었습니다."));
     }
 

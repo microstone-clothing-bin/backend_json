@@ -49,6 +49,7 @@ public class ApiController {
             response.put("message", "로그인 성공");
             response.put("userId", user.getUserId());
             response.put("nickname", user.getNickname());
+            response.put("profileImageUrl", user.getProfileImageUrl());
             return ResponseEntity.ok(response);
         } else {
             response.put("status", "error");
@@ -148,6 +149,21 @@ public class ApiController {
     }
 
     // --- 마이페이지 API ---
+
+    // 마이페이지 정보 조회: GET /api/mypage/info
+    @GetMapping("/mypage/info")
+    public ResponseEntity<Map<String, Object>> getMyPageInfo(@RequestParam("userId") Long userId) {
+        User user = userService.getUserByUserId(userId);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("id", user.getId());
+        response.put("email", user.getEmail());
+        response.put("nickname", user.getNickname());
+        response.put("profileImageUrl", user.getProfileImageUrl());
+
+        return ResponseEntity.ok(response);
+    }
 
     // 프로필 이미지 업로드: POST /api/mypage/uploadProfile
     @PostMapping("/mypage/uploadProfile")

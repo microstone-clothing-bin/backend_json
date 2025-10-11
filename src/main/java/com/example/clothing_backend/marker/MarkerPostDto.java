@@ -12,6 +12,7 @@ public class MarkerPostDto {
     private String imageUrl;      // 이미지 URL 저장
     private LocalDateTime createdAt; // 생성일
     private String authorNickname;   // 작성자 닉네임
+    private String profileImageUrl; // 프로필 사진
 
     // ====== Entity -> DTO 변환 생성자 ======
     public MarkerPostDto(MarkerPost entity) {
@@ -20,5 +21,6 @@ public class MarkerPostDto {
         this.createdAt = entity.getCreatedAt();
         this.authorNickname = entity.getUser().getNickname(); // 작성자 닉네임 가져오기
         this.imageUrl = entity.getImageUrl(); // 이미지 URL
+        this.profileImageUrl = entity.getProfileImageUrl(); // 프로필 사진
     }
 }

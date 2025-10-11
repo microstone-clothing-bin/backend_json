@@ -25,6 +25,8 @@ public class MarkerPost {
     @Column(updatable = false)
     private LocalDateTime createdAt; // 생성일 (수정 불가)
 
+    private String profileImageUrl; // 프로필 사진
+
     // 관계 설정
     @ManyToOne(fetch = FetchType.LAZY) // Lazy 로딩 (필요할 때만 불러옴)
     @JoinColumn(name = "bin_id", nullable = false) // foreign key 컬럼명: bin_id

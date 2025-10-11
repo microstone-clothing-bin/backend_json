@@ -33,14 +33,14 @@ public class MarkerPostService {
         ClothingBin clothingBin = clothingBinRepository.findById(binId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 의류수거함 ID입니다: " + binId));
 
-        // VVV 여기가 핵심! 이미지 처리를 전문가에게 위임! VVV
         String imageUrl = imageUploadService.uploadImage(imageFile);
 
         MarkerPost post = new MarkerPost();
         post.setContent(content);
         post.setClothingBin(clothingBin);
         post.setUser(user);
-        post.setImageUrl(imageUrl); // 이제 DB에는 URL만 저장!
+        post.setImageUrl(imageUrl);
+        post.setProfileImageUrl(user.getProfileImageUrl());
 
         markerPostRepository.save(post);
     }

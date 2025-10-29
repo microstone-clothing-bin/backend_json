@@ -31,6 +31,9 @@ public class BoardDto {
     // 연결된 의류수거함 ID
     private Long binId;
 
+    // 의류수거함 주소 추가
+    private String roadAddress;
+
     // Entity -> DTO 변환 생성자
     public BoardDto(Board board) {
         this.boardId = board.getBoardId();
@@ -47,6 +50,7 @@ public class BoardDto {
             this.binId = board.getClothingBin().getId();
             this.latitude = board.getClothingBin().getLatitude();
             this.longitude = board.getClothingBin().getLongitude();
+            this.roadAddress = board.getClothingBin().getRoadAddress(); // 주소 값 복사
         }
     }
 }

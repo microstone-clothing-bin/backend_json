@@ -1,7 +1,7 @@
 package com.example.clothing_backend.user;
 
 import com.example.clothing_backend.global.ImageUploadService;
-import com.example.clothing_backend.marker.MarkerPostService
+import com.example.clothing_backend.marker.MarkerPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

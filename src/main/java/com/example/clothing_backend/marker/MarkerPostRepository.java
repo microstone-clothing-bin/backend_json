@@ -1,6 +1,9 @@
 package com.example.clothing_backend.marker;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,5 +15,9 @@ public interface MarkerPostRepository extends JpaRepository<MarkerPost, Long> {
     List<MarkerPost> findAllByClothingBin_IdOrderByCreatedAtDesc(Long binId);
 
     // 로그인 한 유저가 리뷰를 삭제하기 위한 메소드
-    void deleteByUserId(Long userId);
+    // @Query를 사용해 user.userId(Long)를 사용
+    @Modifying
+    @Query("DELETE FROM MarkerPost mp WHERE mp.user.userId = :userId")
+    void deleteByUserId(@Param("userId") Long userId);
 }
+

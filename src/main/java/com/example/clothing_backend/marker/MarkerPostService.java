@@ -44,4 +44,10 @@ public class MarkerPostService {
 
         markerPostRepository.save(post);
     }
+
+    // 로그인 한 유저가 리뷰를 삭제
+    @Transactional
+    public void deleteByUserId(Long userId) {
+        markerPostRepository.deleteByUserId(userId);
+    }
 }

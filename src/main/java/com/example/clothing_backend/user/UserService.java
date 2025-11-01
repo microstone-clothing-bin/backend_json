@@ -1,6 +1,7 @@
 package com.example.clothing_backend.user;
 
 import com.example.clothing_backend.global.ImageUploadService;
+import com.example.clothing_backend.marker.MarkerPostService
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ImageUploadService imageUploadService;
+    private final MarkerPostService markerPostService;
 
     // 회원가입
     @Transactional
@@ -85,6 +87,7 @@ public class UserService {
     public void deleteUser(String id) {
         User user = getUser(id);
         if (user != null) {
+            markerPostService.deleteByUserId(user.getUserId()); // 사용자 삭제 전, 사용자가 작성한 리뷰 삭제
             userRepository.delete(user);
         } else {
             throw new UserNotFoundException("ID가 " + id + "인 사용자를 찾을 수 없습니다.");

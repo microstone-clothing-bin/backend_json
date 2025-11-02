@@ -20,4 +20,3 @@ public interface MarkerPostRepository extends JpaRepository<MarkerPost, Long> {
     @Query("DELETE FROM MarkerPost mp WHERE mp.user.userId = :userId")
     void deleteByUserId(@Param("userId") Long userId);
 }
-

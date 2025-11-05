@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "board")
@@ -45,14 +47,17 @@ public class Board {
     // 위도 + 경도는 여기서 포함
     private ClothingBin clothingBin;
 
-    // 게시글 이미지 URL
-    private String imageUrl;
+    // 이미지 리스트 추가
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardImage> images = new ArrayList<>();
 
     // 리뷰 텍스트
     private String reviewText;
 
     // 리뷰 이미지 URL
-    private String reviewImageUrl;
+    public void addImage(BoardImage boardImage) {
+        this.images.add(boardImage);
+    }
 
     @PrePersist
     public void prePersist() {

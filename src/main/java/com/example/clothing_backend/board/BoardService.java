@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile; // 이미지 업로드 받을 때 사용
 import java.io.IOException; // 업로드 실패시 예외 처리
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,7 @@ public class BoardService {
     // 게시글 작성
     @Transactional
     public void addBoard(String nickname, String title, String content, Long userId,
-                         List<MultipartFile> imageFiles,
+                         MultipartFile imageFile,
                          Long binId) throws IOException {
 
         Board board = new Board();
@@ -48,18 +47,9 @@ public class BoardService {
         board.setUserId(userId);
         board.setViewCnt(0); // 새 글이니까 조회수 0으로 시작
 
-        // 이미지 리스트 업로드 로직
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            // 클라우디너리에 이미지들 업로드 후 URL 리스트 받기
-            List<String> imageUrls = imageUploadService.uploadImages(imageFiles);
-
-            // 2. URL 리스트를 BoardImage 객체로 변환하여 Board에 추가
-            for (String url : imageUrls) {
-                BoardImage boardImage = new BoardImage(url, board);
-
-                board.addImage(boardImage);
-            }
-        }
+        // 이미지 업로드 로직
+        String imageUrl = imageUploadService.uploadImage(imageFile);
+        board.setImageUrl(imageUrl);
 
         // binId로 ClothingBin을 찾아서 연결
         if (binId != null) {
@@ -68,7 +58,7 @@ public class BoardService {
             board.setClothingBin(bin);
         }
 
-        boardRepository.save(board); // DB 저장 (Board 엔티티의 Cascade 설정으로 BoardImage도 함께 저장)
+        boardRepository.save(board); // DB 저장
     }
 
     // 게시글 수정 (텍스트만 수정 가능)

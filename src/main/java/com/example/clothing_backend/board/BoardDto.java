@@ -3,9 +3,6 @@ package com.example.clothing_backend.board;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -25,8 +22,8 @@ public class BoardDto {
     private LocalDateTime modifiedAt;
     // 조회수
     private int viewCnt;
-
-    private List<String> imageUrls;
+    // 이미지 URL
+    private String imageUrl;
 
     // 위치 위도
     private Double latitude;
@@ -48,14 +45,8 @@ public class BoardDto {
         this.modifiedAt = board.getModifiedAt();
         this.viewCnt = board.getViewCnt();
 
-        // Board 엔티티의 images(List<BoardImage>)를 DTO의 imageUrls(List<String>)로 변환
-        if (board.getImages() != null && !board.getImages().isEmpty()) {
-            this.imageUrls = board.getImages().stream()
-                    .map(boardImage -> boardImage.getImageUrl())
-                    .collect(Collectors.toList());
-        } else {
-            this.imageUrls = new ArrayList<>(); // 이미지가 없을 경우 빈 리스트 반환
-        }
+        // 단일 이미지 URL 로드
+        this.imageUrl = board.getImageUrl();
 
         // board에 연결된 clothingBin 객체가 존재 시, 그 안에서 id와 좌표를 꺼내 DTO에 저장
         if (board.getClothingBin() != null) {

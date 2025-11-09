@@ -253,10 +253,10 @@ public class ApiController {
             @RequestParam Long userId,
             @RequestParam String nickname,
 
-            @RequestParam(required = false) List<MultipartFile> images,
+            @RequestParam(required = false) MultipartFile image,
             @RequestParam(required = false) Long binId) throws IOException {
 
-        boardService.addBoard(nickname, title, content, userId, images, binId);
+        boardService.addBoard(nickname, title, content, userId, image, binId);
 
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 등록되었습니다."));
     }

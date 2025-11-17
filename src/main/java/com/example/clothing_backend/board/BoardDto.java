@@ -16,6 +16,10 @@ public class BoardDto {
     private String content;
     // 작성자 닉네임
     private String nickname;
+    // 작성자 유저 ID
+    private Long userId;
+    // 작성자 프로필 이미지 URL
+    private String profileImageUrl;
     // 작성일
     private LocalDateTime redate;
     // 수정일
@@ -44,6 +48,12 @@ public class BoardDto {
         this.redate = board.getRedate();
         this.modifiedAt = board.getModifiedAt();
         this.viewCnt = board.getViewCnt();
+
+        // 작성자 ID
+        this.userId = board.getUserId();
+
+        // null -> board 엔티티에서 직접 가져오기
+        this.profileImageUrl = board.getProfileImageUrl();
 
         // 단일 이미지 URL 로드
         this.imageUrl = board.getImageUrl();

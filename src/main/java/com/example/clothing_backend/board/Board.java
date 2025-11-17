@@ -25,6 +25,9 @@ public class Board {
     // 작성자 닉네임
     private String nickname;
 
+    // 작성자 프로필 이미지 URL
+    private String profileImageUrl;
+
     @Column(columnDefinition = "TIMESTAMP")
     // 글 작성일
     private LocalDateTime redate;

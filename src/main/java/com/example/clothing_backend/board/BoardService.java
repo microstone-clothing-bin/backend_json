@@ -3,6 +3,8 @@ package com.example.clothing_backend.board;
 import com.example.clothing_backend.global.ImageUploadService;
 import com.example.clothing_backend.marker.ClothingBin;
 import com.example.clothing_backend.marker.ClothingBinRepository;
+import com.example.clothing_backend.user.User;
+import com.example.clothing_backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ public class BoardService {
     private final BoardRepository boardRepository; // DB 접근용 리포지토리
     private final ImageUploadService imageUploadService; // 이미지 업로드 처리 담당
     private final ClothingBinRepository clothingBinRepository; // 의류수거함 정보 조회용
+    private final UserRepository userRepository; // 사용자 정보 조회를 위해 주입
 
     // 게시글 리스트 조회
     public Page<Board> getBoards(Pageable pageable) {
@@ -40,11 +43,19 @@ public class BoardService {
                          MultipartFile imageFile,
                          Long binId) throws IOException {
 
+        // userId로 User 객체를 찾아서 프로필 이미지 URL 확보
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. ID: " + userId));
+
         Board board = new Board();
-        board.setNickname(nickname);
+        board.setNickname(nickname); // user.getNickname()을 쓰는 게 더 정확할 수 있음
         board.setTitle(title);
         board.setContent(content);
         board.setUserId(userId);
+
+        // User 객체에서 프로필 이미지 URL을 꺼내 board에 저장
+        board.setProfileImageUrl(user.getProfileImageUrl());
+
         board.setViewCnt(0); // 새 글이니까 조회수 0으로 시작
 
         // 이미지 업로드 로직

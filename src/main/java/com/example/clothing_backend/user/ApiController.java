@@ -261,6 +261,20 @@ public class ApiController {
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 등록되었습니다."));
     }
 
+    // 게시글 수정: PUT /api/boards/{boardId}
+    @PutMapping("/boards/{boardId}")
+    public ResponseEntity<Map<String, String>> updateBoard(
+            @PathVariable Long boardId,
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam Long userId) {
+
+        // 서비스의 수정 로직 호출 (작성자 본인 확인은 서비스 안에서 함)
+        boardService.updateBoardTextOnly(boardId, title, content, userId);
+
+        return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 수정되었습니다."));
+    }
+
     // --- 즐겨찾기 API ---
 
     // 즐겨찾기 추가: POST /api/wish/add/{binId}

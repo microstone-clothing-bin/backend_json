@@ -275,6 +275,18 @@ public class ApiController {
         return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 수정되었습니다."));
     }
 
+    // 게시글 삭제: DELETE /api/boards/{boardId}
+    @DeleteMapping("/boards/{boardId}")
+    public ResponseEntity<Map<String, String>> deleteBoard(
+            @PathVariable Long boardId,
+            @RequestParam Long userId) {
+
+        // 서비스의 삭제 로직 호출 (작성자 본인 확인 포함)
+        boardService.deleteBoard(userId, boardId);
+
+        return ResponseEntity.ok(Map.of("status", "success", "message", "게시글이 삭제되었습니다."));
+    }
+
     // --- 즐겨찾기 API ---
 
     // 즐겨찾기 추가: POST /api/wish/add/{binId}
